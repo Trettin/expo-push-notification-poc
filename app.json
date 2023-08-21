@@ -23,7 +23,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.trettin.notificationpoc2"
+      "package": "com.trettin.notificationpoc2",
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +35,9 @@
       "eas": {
         "projectId": "85b67834-5b94-4f18-8dc5-ac80fe790c7b"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/85b67834-5b94-4f18-8dc5-ac80fe790c7b"
     }
   }
 }
