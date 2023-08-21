@@ -3,26 +3,23 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, Platform, StyleSheet, Text, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as TaskMngr from 'expo-task-manager';
-import { getLastNotificationResponseAsync, NotificationResponse, Subscription } from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from "expo-constants";
+import { Log } from './services/log';
 
-let lastNotificationTouched: NotificationResponse | null | undefined = undefined;
 const ver = '0.0.1'
-
-
+Log('Version '+ ver, '')
 Notifications.registerTaskAsync('BACKGROUND-NOTIFICATION-TASK')
 .then(() => {
-
   
   TaskMngr.isTaskRegisteredAsync('BACKGROUND-NOTIFICATION-TASK')
   .catch((error) => {console.log('Error while checking if task is defined',error)})
   .then((isDefined) => {
-    console.log('Is Background Notification Defined? ', isDefined)
+    Log('Is Background Notification Defined?', isDefined)
   })
 
 }).catch((error) => {
-  console.log('Error while setting Notification Task: ' + error)
+  Log('Error while setting Notification Task', error)
 })
 
 Notifications.setNotificationHandler({
@@ -46,27 +43,22 @@ export async function registerForPushNotificationsAsync() {
   try {
     let token;
     if (!Device.isDevice) {
-      console.log('Must use physical device for Push Notifications')
+      Log('Must use physical device for Push Notifications', '')
       alert('Must use physical device for Push Notifications');
     } 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    console.log('getPermissionsAsync : ', { 
+    Log('getPermissionsAsync : ', { 
       existingStatus, 
-      date: new Date().toISOString()
     })
-    
-    console.log('Constants.easConfig?.projectId: ', { 
-      projectId: Constants.expoConfig?.extra?.eas?.projectId,
-      date: new Date().toISOString()
-    })
+    Log('Constants.easConfig?.projectId: ', Constants.expoConfig?.extra?.eas?.projectId)
     token = (await Notifications.getExpoPushTokenAsync({
       projectId: Constants.expoConfig?.extra?.eas?.projectId,
     })).data;
-    console.log(token);
+    Log('Expo push token', token);
 
     return token;
   } catch (error) {
-    console.log('Error while registering for pushnotification', error)
+    Log('Error while registering for pushnotification', error)
   }
   
 }
@@ -95,38 +87,40 @@ function useNotificationObserver() {
   React.useEffect(() => {
     let isMounted = true;
 
-    function redirect(notification: Notifications.Notification, name: string) {
+    function handleNotificationClick(notification: Notifications.Notification, name: string) {
       // const url = notification.request.content.data?.url;
       // if (url) {
       //   router.push(url);
       alert(`${ver} Notification, Name: ${name}:  ` + JSON.stringify(notification.request.content, null, 2));
-      console.log(`${ver} Notification, Name: ${name}:  ` + JSON.stringify(notification.request.content, null, 2));
+      Log('Notification Clicked! ' + name, notification.request.content);
       // }
     }
 
     Notifications.getLastNotificationResponseAsync() 
       .then(response => {
-        console.log('getLastNotificationResponseAsync', response);
+        Log('getLastNotificationResponseAsync', response);
         if (!isMounted || !response?.notification) {
           alert(`${ver} !isMounted || !response?.notification ` + JSON.stringify({
             isMounted, response
           }, null, 2));
+          Log('!isMounted || !response?.notification', {
+            isMounted, response
+          })
 
           return;
         }
-        redirect(response?.notification, 'getLastNotificationResponseAsync');
+        handleNotificationClick(response?.notification, 'getLastNotificationResponseAsync');
       });
 
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log('NOTIFICATION CLICKED> ', JSON.stringify(response.notification.request.content.data, null, 2) )
-
-      redirect(response.notification, 'addNotificationResponseReceivedListener');
+      handleNotificationClick(response.notification, 'addNotificationResponseReceivedListener');
     });
 
     return () => {
       isMounted = false;
       Notifications.removeNotificationSubscription(subscription);
       subscription?.remove();
+      Log('useNotificationObserver return','')
     };
   }, []);
 }
