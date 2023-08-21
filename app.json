@@ -26,7 +26,8 @@
       "package": "com.trettin.notificationpoc2",
       "runtimeVersion": {
         "policy": "sdkVersion"
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

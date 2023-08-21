@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "498928072479",
+    "project_id": "teste-push-notification-69505",
+    "storage_bucket": "teste-push-notification-69505.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498928072479:android:9f260f45025dcb825c622a",
+        "android_client_info": {
+          "package_name": "com.trettin.notificationpoc2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtgo7wO1yZFhAFcwGkkT-XBiv4TxD-DEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
