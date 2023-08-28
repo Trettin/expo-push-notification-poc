@@ -13,24 +13,32 @@ Notifications.registerTaskAsync('BACKGROUND-NOTIFICATION-TASK')
 .then(() => {
   
   TaskMngr.isTaskRegisteredAsync('BACKGROUND-NOTIFICATION-TASK')
-  .catch((error) => {console.log('Error while checking if task is defined',error)})
+  .catch((error) => {Log('Error while checking if task is defined',error)})
   .then((isDefined) => {
-    Log('Is Background Notification Defined?', isDefined)
+    Log('isTaskRegisteredAsync?', isDefined)
   })
 
 }).catch((error) => {
   Log('Error while setting Notification Task', error)
 })
 
+Log('Setting setNotificationHandler', '')
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: true,
   }),
+  handleError(notificationId, error) {
+    Log('handleError notificationId', {notificationId, error})
+  },
+  handleSuccess(notificationId) {
+    Log('handleSuccess notificationId', notificationId)
+  },
 });
 
 if (Platform.OS === 'android') {
+  Log('IS ANDROID, SETTING CHANNEL ,' , '')
   Notifications.setNotificationChannelAsync('default', {
     name: 'default',
     importance: Notifications.AndroidImportance.MAX,
@@ -50,11 +58,14 @@ export async function registerForPushNotificationsAsync() {
     Log('getPermissionsAsync : ', { 
       existingStatus, 
     })
-    Log('Constants.easConfig?.projectId: ', Constants.expoConfig?.extra?.eas?.projectId)
+
     token = (await Notifications.getExpoPushTokenAsync({
       projectId: Constants.expoConfig?.extra?.eas?.projectId,
     })).data;
-    Log('Expo push token', token);
+    Log('Expo push token and projectId', {
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+      token
+    });
 
     return token;
   } catch (error) {
@@ -84,6 +95,7 @@ async function sendPushNotification(expoPushToken: string) {
 }
 
 function useNotificationObserver() {
+  Log('useNotificationObserver','')
   React.useEffect(() => {
     let isMounted = true;
 
@@ -112,6 +124,7 @@ function useNotificationObserver() {
         handleNotificationClick(response?.notification, 'getLastNotificationResponseAsync');
       });
 
+    Log('setting addNotificationResponseReceivedListener', '')
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
       handleNotificationClick(response.notification, 'addNotificationResponseReceivedListener');
     });
@@ -137,8 +150,10 @@ export default function App() {
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
+    Log('Defining addNotificationReceivedListener', '')
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);
+      Log('received notification', {notification});
     });
 
     // responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
